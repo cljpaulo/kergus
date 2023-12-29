@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
-import { View } from 'react-native';
+import { ScrollView, View } from 'react-native';
+import BalanceCard from '../../Components/Home/BalanceCard';
 import Header from '../../Components/Home/Header';
 import db from '../../Services/DB';
 
@@ -36,9 +37,10 @@ export default function Home() {
     };
 
     return (
-        <>
-            <View style={{ backgroundColor: '#0B0B81', height: 250 }} />
+        <ScrollView>
+            <View style={{ backgroundColor: '#0B0B81', height: 200 }} />
             <Header />
-        </>
+            <BalanceCard />
+        </ScrollView>
     );
 }
