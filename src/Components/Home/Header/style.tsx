@@ -3,7 +3,8 @@ import { RFValue } from 'react-native-responsive-fontsize';
 
 export const headerStyles = StyleSheet.create({
     container: {
-        marginTop: -180,
+        marginTop: -140,
+        marginBottom: 30,
         flexDirection: 'row',
         justifyContent: 'space-between',
         marginHorizontal: 20,
