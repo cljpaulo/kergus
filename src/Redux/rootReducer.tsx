@@ -1,8 +1,8 @@
 import { combineReducers } from '@reduxjs/toolkit';
-import etapaAtualReducer from './Etapa-Atual/index';
+import currentStageReducer from './Current-Stage/index';
 
 const rootReducer = combineReducers({
-    etapaAtual: etapaAtualReducer,
+    currentStage: currentStageReducer,
 });
 
 export default rootReducer;
