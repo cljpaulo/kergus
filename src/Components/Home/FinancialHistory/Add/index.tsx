@@ -1,102 +1,124 @@
+import { Rubik_300Light, Rubik_600SemiBold, useFonts } from '@expo-google-fonts/rubik';
+import { MaterialIcons } from '@expo/vector-icons';
 import React, { useState } from 'react';
-import { Button, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ScrollView, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
+import { Appbar } from 'react-native-paper';
+import { RFValue } from 'react-native-responsive-fontsize';
+import Toast from 'react-native-toast-message';
 import { useReduxDispatch } from '../../../../Redux';
 import { currentStage } from '../../../../Redux/Current-Stage';
-
-const data: any = [
-    { label: 'Item 1', value: '1' },
-    { label: 'Item 2', value: '2' },
-    { label: 'Item 3', value: '3' },
-    { label: 'Item 4', value: '4' },
-    { label: 'Item 5', value: '5' },
-    { label: 'Item 6', value: '6' },
-    { label: 'Item 7', value: '7' },
-    { label: 'Item 8', value: '8' },
-];
+import { formatCurrencyValue } from '../../../../Utils/FormatCurrencyValue';
+import { getMonthYearString } from '../../../../Utils/MonthYearString';
+import { showToast } from '../../../MyToast';
+import { toastConfig } from '../../../MyToast/toastConfig';
+import insertData from './SQLite/insert';
+import { categories } from './categories';
+import { addFinancialHistoryStyles as styles } from './style';
 
 export default function AddFinancialHistory() {
+    const [fontsLoaded] = useFonts({
+        Rubik_600SemiBold,
+        Rubik_300Light,
+    });
+
     const dispatch = useReduxDispatch();
 
-    const [value, setValue] = useState<any>(null);
-    const [isFocus, setIsFocus] = useState<any>(false);
+    const [type, setType] = useState<any>(null);
+    const [isFocusType, setIsFocusType] = useState<boolean>(false);
+    const [description, setDescription] = useState<string>();
+    const [value, setValue] = useState<string>();
 
-    const renderLabel: any = () => {
-        if (value || isFocus) {
-            return <Text style={[styles.label, isFocus && { color: 'blue' }]}>Dropdown label</Text>;
+    const addNewValue = () => {
+        if (type && description && value) {
+            const monthYearString = getMonthYearString();
+            const formattedValue = formatCurrencyValue(value);
+            insertData(monthYearString, type, description, formattedValue, dispatch);
+        } else {
+            showToast('info', 'Atenção', 'Preencha todos os campos obrigatórios!');
         }
-        return null;
     };
 
+    const renderItem = (item: any) => {
+        return (
+            <View style={styles.item}>
+                <Text style={styles.textItem}>{item.label}</Text>
+            </View>
+        );
+    };
+
+    if (!fontsLoaded) {
+        return null;
+    }
+
     return (
-        <View style={{ marginTop: 60 }}>
-            <Button title="Voltar" onPress={() => dispatch(currentStage('Financial History'))} />
-            <Dropdown
-                style={[styles.dropdown, isFocus && { borderColor: 'blue' }]}
-                placeholderStyle={styles.placeholderStyle}
-                selectedTextStyle={styles.selectedTextStyle}
-                inputSearchStyle={styles.inputSearchStyle}
-                iconStyle={styles.iconStyle}
-                data={data}
-                search
-                maxHeight={300}
-                labelField="label"
-                valueField="value"
-                placeholder={!isFocus ? 'Select item' : '...'}
-                searchPlaceholder="Search..."
-                value={value}
-                onFocus={() => setIsFocus(true)}
-                onBlur={() => setIsFocus(false)}
-                onChange={item => {
-                    setValue(item.value);
-                    setIsFocus(false);
-                }}
-            />
-            <TextInput style={{ height: 50, marginHorizontal: 20, borderWidth: 2 }} />
-            <TextInput
-                keyboardType="numeric"
-                style={{ height: 50, marginHorizontal: 20, borderWidth: 2 }}
-            />
+        <View>
+            <Appbar.Header style={styles.header}>
+                <TouchableOpacity
+                    style={styles.backButton}
+                    onPress={() => dispatch(currentStage('Financial History'))}>
+                    <MaterialIcons name="arrow-back-ios" color="white" size={RFValue(22)} />
+                </TouchableOpacity>
+                <Text style={styles.headerText}>Adicionar Novo Registro</Text>
+            </Appbar.Header>
+            <ScrollView style={styles.scrollView}>
+                <View style={styles.contentContainer}>
+                    <Text style={styles.headingText}>Preencha todos os campos</Text>
+
+                    <View style={styles.formSection}>
+                        <Text style={styles.formLabel}>
+                            Selecione uma categoria<Text style={{ color: 'red' }}>*</Text>
+                        </Text>
+                        <Dropdown
+                            style={[styles.dropdown, isFocusType && { borderColor: 'blue' }]}
+                            placeholderStyle={styles.placeholderStyle}
+                            selectedTextStyle={styles.selectedTextStyle}
+                            inputSearchStyle={styles.inputSearchStyle}
+                            data={categories}
+                            search
+                            maxHeight={300}
+                            labelField="label"
+                            valueField="value"
+                            placeholder={!isFocusType ? 'Selecionar' : '...'}
+                            searchPlaceholder="Buscar..."
+                            value={type}
+                            onFocus={() => setIsFocusType(true)}
+                            onBlur={() => setIsFocusType(false)}
+                            onChange={item => {
+                                setType(item.value);
+                                setIsFocusType(false);
+                            }}
+                            renderItem={renderItem}
+                        />
+                    </View>
+                    <View style={styles.formSection}>
+                        <Text style={styles.formLabel}>
+                            Descrição do registro<Text style={{ color: 'red' }}>*</Text>
+                        </Text>
+                        <TextInput
+                            placeholder="Ex: Salário"
+                            style={styles.textInput}
+                            onChangeText={(description: string) => setDescription(description)}
+                        />
+                    </View>
+                    <View style={styles.formSection}>
+                        <Text style={styles.formLabel}>
+                            Valor do registro<Text style={{ color: 'red' }}>*</Text>
+                        </Text>
+                        <TextInput
+                            keyboardType="numeric"
+                            placeholder="Ex: 1000.00"
+                            style={styles.textInput}
+                            onChangeText={(value: string) => setValue(value)}
+                        />
+                    </View>
+
+                    <TouchableOpacity onPress={addNewValue}>
+                        <Text style={styles.addButton}>Adicionar</Text>
+                    </TouchableOpacity>
+                </View>
+            </ScrollView>
+            <Toast config={toastConfig} />
         </View>
     );
 }
-
-const styles = StyleSheet.create({
-    container: {
-        backgroundColor: 'white',
-        padding: 16,
-    },
-    dropdown: {
-        height: 50,
-        borderColor: 'gray',
-        borderWidth: 0.5,
-        borderRadius: 8,
-        paddingHorizontal: 8,
-    },
-    icon: {
-        marginRight: 5,
-    },
-    label: {
-        position: 'absolute',
-        backgroundColor: 'white',
-        left: 22,
-        top: 8,
-        zIndex: 999,
-        paddingHorizontal: 8,
-        fontSize: 14,
-    },
-    placeholderStyle: {
-        fontSize: 16,
-    },
-    selectedTextStyle: {
-        fontSize: 16,
-    },
-    iconStyle: {
-        width: 20,
-        height: 20,
-    },
-    inputSearchStyle: {
-        height: 40,
-        fontSize: 16,
-    },
-});
