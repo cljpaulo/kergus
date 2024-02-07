@@ -1,9 +1,13 @@
 import { Rubik_300Light, Rubik_600SemiBold, useFonts } from '@expo-google-fonts/rubik';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
+import { calculateTotalIncome } from '../../../Utils/CalculateTotalIncome';
+import { calculateTotalOutputs } from '../../../Utils/CalculateTotalOutputs';
+import { currentBalance } from '../../../Utils/CurrentBalance';
+import selectMonthlyFinancialHistory from './SQLite/monthlyFinancialHistory';
 import { balancedCardStyles } from './style';
 
 export default function BalanceCard() {
@@ -13,6 +17,11 @@ export default function BalanceCard() {
     });
 
     const [showDetails, setShowDetails] = useState(false);
+    const [monthlyFinancialHistory, setMonthlyFinancialHistory] = useState<any>(null);
+
+    useEffect(() => {
+        selectMonthlyFinancialHistory(setMonthlyFinancialHistory);
+    }, []);
 
     const toggleDetailsVisibility = () => {
         setShowDetails(!showDetails);
@@ -32,7 +41,9 @@ export default function BalanceCard() {
                     ]}>
                     <Text style={balancedCardStyles.sectionText}>Saldo Atual</Text>
                     {showDetails ? (
-                        <Text style={balancedCardStyles.sectionText}>R$ 1.000,00</Text>
+                        <Text style={balancedCardStyles.sectionText}>
+                            {monthlyFinancialHistory && currentBalance(monthlyFinancialHistory)}
+                        </Text>
                     ) : (
                         <Text style={balancedCardStyles.sectionText}>R$ ---</Text>
                     )}
@@ -64,7 +75,10 @@ export default function BalanceCard() {
                     ]}>
                     <Text style={balancedCardStyles.sectionText}>Entradas</Text>
                     {showDetails ? (
-                        <Text style={balancedCardStyles.sectionText}>R$ 2.000,00</Text>
+                        <Text style={balancedCardStyles.sectionText}>
+                            {monthlyFinancialHistory &&
+                                calculateTotalIncome(monthlyFinancialHistory)}
+                        </Text>
                     ) : (
                         <Text style={balancedCardStyles.sectionText}>R$ ---</Text>
                     )}
@@ -76,7 +90,10 @@ export default function BalanceCard() {
                     ]}>
                     <Text style={balancedCardStyles.sectionText}>Saídas</Text>
                     {showDetails ? (
-                        <Text style={balancedCardStyles.sectionText}>R$ 1.000,00</Text>
+                        <Text style={balancedCardStyles.sectionText}>
+                            {monthlyFinancialHistory &&
+                                calculateTotalOutputs(monthlyFinancialHistory)}
+                        </Text>
                     ) : (
                         <Text style={balancedCardStyles.sectionText}>R$ ---</Text>
                     )}
