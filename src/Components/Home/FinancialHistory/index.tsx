@@ -6,6 +6,7 @@ import { ActivityIndicator, Card } from 'react-native-paper';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useReduxDispatch } from '../../../Redux';
 import { currentStage } from '../../../Redux/Current-Stage';
+import { setCurrentValue } from '../../../Redux/Current-Value';
 import createTable from './SQLite/createTable';
 import selectData from './SQLite/selectData';
 import { categoryColors } from './categoryColors';
@@ -76,9 +77,17 @@ export default function FinancialHistory() {
                                         </Text>
                                     </View>
                                     <TouchableOpacity
-                                        onPress={() =>
-                                            dispatch(currentStage('Edit Financial History'))
-                                        }>
+                                        onPress={() => {
+                                            dispatch(
+                                                setCurrentValue({
+                                                    id: item?.id,
+                                                    type: item?.type,
+                                                    description: item?.description,
+                                                    value: item?.value,
+                                                }),
+                                            );
+                                            dispatch(currentStage('Edit Financial History'));
+                                        }}>
                                         <View style={financialHistoryStyles.editButton}>
                                             <MaterialIcons name="edit" size={RFValue(22)} />
                                         </View>
@@ -93,7 +102,9 @@ export default function FinancialHistory() {
                     <Text style={financialHistoryStyles.notFoundText}>
                         Não foram encontrados registros!
                     </Text>
-                    <TouchableOpacity style={financialHistoryStyles.notFoundButton}>
+                    <TouchableOpacity
+                        onPress={() => dispatch(currentStage('Add Financial History'))}
+                        style={financialHistoryStyles.notFoundButton}>
                         <MaterialIcons name="add" color="white" size={RFValue(22)} />
                         <Text style={financialHistoryStyles.addButtonText}>
                             Adicionar Novo Registro

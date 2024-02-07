@@ -1,5 +1,6 @@
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
+import { ModalPortal } from 'react-native-modals';
 import { Provider as PaperProvider } from 'react-native-paper';
 import { Provider } from 'react-redux';
 import Template from './src/Components/Template';
@@ -33,6 +34,7 @@ export default function App() {
                     </Stack.Navigator>
                 </NavigationContainer>
             </PaperProvider>
+            <ModalPortal />
         </Provider>
     );
 }

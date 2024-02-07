@@ -2,7 +2,8 @@ import { currentStage } from '../../../../../Redux/Current-Stage';
 import db from '../../../../../Services/DB';
 import { showToast } from '../../../../MyToast';
 
-const insertData = (
+const updateData = (
+    id: string,
     date: string,
     type: string,
     description: string,
@@ -12,22 +13,23 @@ const insertData = (
     db.transaction((tx: any) => {
         tx.executeSql(
             `
-      INSERT INTO financial_history (date, type, description, value)
-      VALUES (?, ?, ?, ?);
-      `,
-            [date, type, description, value],
+            UPDATE financial_history
+            SET date = ?, type = ?, description = ?, value = ?
+            WHERE id = ?;
+            `,
+            [date, type, description, value, id],
             (_: any, result: any) => {
-                showToast('success', 'Sucesso', 'Registro inserido com sucesso!');
+                showToast('success', 'Sucesso', 'Registro atualizado com sucesso!');
 
                 setTimeout(() => {
                     dispatch(currentStage('Financial History'));
                 }, 3000);
             },
             (_: any, error: any) => {
-                showToast('error', 'Erro', 'Registro não inserido!');
+                showToast('error', 'Erro', 'Registro não atualizado!');
             },
         );
     });
 };
 
-export default insertData;
+export default updateData;
